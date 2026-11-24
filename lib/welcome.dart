@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'components/rings.dart';
 
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
@@ -16,7 +17,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
 
     controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 3),
+      duration: const Duration(milliseconds: 4000),
     );
 
     controller.forward();
@@ -71,7 +72,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                   ),
                 ),
                 0.0,
-                0.3,
+                0.16,
               ),
               const SizedBox(height: 15),
               animate(
@@ -86,10 +87,14 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                     color: Color(0xFFD8B982),
                   ),
                 ),
-                0.35,
-                0.65,
+                0.20,
+                0.36,
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 20),
+
+              Rings(animation: controller),
+
+              const SizedBox(height: 20),
               animate(
                 ElevatedButton(
                   onPressed: () {},
@@ -110,7 +115,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                     ),
                   ),
                 ),
-                0.75,
+                0.91,
                 1.0,
               ),
             ],
