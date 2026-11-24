@@ -1,9 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class Setup extends StatelessWidget {
+class Setup extends StatefulWidget {
   const Setup({super.key});
-  Widget numberInput(String label, IconData icon) {
+
+  @override
+  State<Setup> createState() => _SetupState();
+}
+
+class _SetupState extends State<Setup> {
+  final guestsController = TextEditingController();
+  final seatsController = TextEditingController();
+
+  @override
+  void dispose() {
+    guestsController.dispose();
+    seatsController.dispose();
+    super.dispose();
+  }
+
+  int get guests {
+    return int.tryParse(guestsController.text) ?? 0;
+  }
+
+  int get seats {
+    return int.tryParse(seatsController.text) ?? 0;
+  }
+
+  bool get isValid {
+    return guests > 0 && seats > 0;
+  }
+
+  int get tables {
+    if (!isValid) {
+      return 0;
+    }
+
+    return (guests / seats).ceil();
+  }
+
+  Widget numberInput(
+    String label,
+    IconData icon,
+    TextEditingController controller,
+  ) {
     return TextField(
+      controller: controller,
+      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+      onChanged: (value) {
+        setState(() {});
+      },
       keyboardType: TextInputType.number,
       style: const TextStyle(color: Color(0xFFF6F0E7)),
       decoration: InputDecoration(
@@ -86,6 +132,7 @@ class Setup extends StatelessWidget {
                           numberInput(
                             'قديه عدد يلي رح يشرّفونا؟',
                             Icons.people_outline,
+                            guestsController,
                           ),
 
                           const SizedBox(height: 20),
@@ -93,6 +140,7 @@ class Setup extends StatelessWidget {
                           numberInput(
                             'كم كرسي بكل طاولة؟',
                             Icons.chair_outlined,
+                            seatsController,
                           ),
 
                           const SizedBox(height: 25),
@@ -105,11 +153,21 @@ class Setup extends StatelessWidget {
                             ),
                           ),
 
-                          const Text(
-                            '—',
-                            style: TextStyle(
-                              fontSize: 38,
-                              color: Color(0xFFD8B982),
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 350),
+                            transitionBuilder: (child, animation) {
+                              return ScaleTransition(
+                                scale: animation,
+                                child: child,
+                              );
+                            },
+                            child: Text(
+                              isValid ? '$tables' : '—',
+                              key: ValueKey(tables),
+                              style: const TextStyle(
+                                fontSize: 38,
+                                color: Color(0xFFD8B982),
+                              ),
                             ),
                           ),
 
@@ -118,7 +176,20 @@ class Setup extends StatelessWidget {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: null,
+                              onPressed: isValid
+                                  ? () {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            'بدنا $tables طاولة لـ $guests معزوم',
+                                            textDirection: TextDirection.rtl,
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFD8B982),
                                 foregroundColor: const Color(0xFF0D202B),
