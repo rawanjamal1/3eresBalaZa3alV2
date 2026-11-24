@@ -19,6 +19,156 @@ class Seating extends StatefulWidget {
 
 class _SeatingState extends State<Seating> {
   int selectedTable = 1;
+  final guestController = TextEditingController();
+
+  late final List<List<String>> guestsByTable;
+
+  @override
+  void initState() {
+    super.initState();
+
+    guestsByTable = List.generate(widget.tables, (index) => <String>[]);
+  }
+
+  @override
+  void dispose() {
+    guestController.dispose();
+    super.dispose();
+  }
+
+  void addGuest() {
+    final name = guestController.text.trim();
+
+    final currentGuests = guestsByTable[selectedTable - 1];
+
+    int totalSeated = 0;
+
+    for (final table in guestsByTable) {
+      totalSeated += table.length;
+    }
+
+    if (name.isEmpty) {
+      showMessage('اكتب اسم المعزوم أول شي!');
+      return;
+    }
+
+    if (currentGuests.length >= widget.seats) {
+      showMessage('الطاولة فلّت! اختار طاولة تانية.');
+      return;
+    }
+
+    if (totalSeated >= widget.guests) {
+      showMessage('كل المعازيم صار عندن مطرح!');
+      return;
+    }
+
+    setState(() {
+      currentGuests.add(name);
+    });
+
+    guestController.clear();
+  }
+
+  void showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message, textDirection: TextDirection.rtl)),
+    );
+  }
+
+  Widget guestPanel() {
+    final currentGuests = guestsByTable[selectedTable - 1];
+
+    return Center(
+      child: Container(
+        width: 450,
+        margin: const EdgeInsets.only(top: 20),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color(0xFF123B45),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: const Color(0xFFD8B982)),
+        ),
+        child: Column(
+          children: [
+            Text(
+              'معازيم الطاولة $selectedTable',
+              style: const TextStyle(
+                fontFamily: 'ElMessiri',
+                fontWeight: FontWeight.w500,
+                fontSize: 25,
+                color: Color(0xFFD8B982),
+              ),
+            ),
+
+            const SizedBox(height: 15),
+
+            TextField(
+              controller: guestController,
+              style: const TextStyle(color: Color(0xFFF6F0E7)),
+              decoration: InputDecoration(
+                labelText: 'اسم المعزوم الكامل',
+                labelStyle: const TextStyle(color: Color(0xFFD8B982)),
+                prefixIcon: const Icon(
+                  Icons.person_outline,
+                  color: Color(0xFFD8B982),
+                ),
+                filled: true,
+                fillColor: const Color(0xFF0D202B),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+              ),
+              onSubmitted: (value) {
+                addGuest();
+              },
+            ),
+
+            const SizedBox(height: 15),
+
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: addGuest,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD8B982),
+                  foregroundColor: const Color(0xFF0D202B),
+                  padding: const EdgeInsets.all(16),
+                ),
+                child: const Text(
+                  'احجزله كرسي',
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            if (currentGuests.isEmpty)
+              const Text(
+                'بعد ما حدا قعد عهالطاولة.',
+                style: TextStyle(color: Color(0xFFC8D2D6)),
+              ),
+
+            for (int i = 0; i < currentGuests.length; i++)
+              Card(
+                color: const Color(0xFF0D202B),
+                child: ListTile(
+                  leading: const Icon(Icons.person, color: Color(0xFF27B7B2)),
+                  title: Text(
+                    currentGuests[i],
+                    style: const TextStyle(color: Color(0xFFF6F0E7)),
+                  ),
+                  trailing: Text(
+                    '${i + 1}',
+                    style: const TextStyle(color: Color(0xFFD8B982)),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget counter(String label, int value) {
     return Container(
@@ -48,52 +198,59 @@ class _SeatingState extends State<Seating> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0D202B),
-      appBar: AppBar(
-        title: const Text('قاعة العرس'),
-        backgroundColor: const Color(0xFF123B45),
-        foregroundColor: const Color(0xFFD8B982),
-      ),
+
       body: SafeArea(
-        child: Directionality(
-          textDirection: TextDirection.rtl,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              children: [
-                const Text(
-                  'كل واحد إلو مطرح!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: 'ElMessiri',
-                    fontWeight: FontWeight.w500,
-                    fontSize: 32,
-                    color: Color(0xFFF6F0E7),
+        child: SingleChildScrollView(
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: AppBar(
+                      primary: false,
+                      title: const Text('قاعة العرس'),
+                      backgroundColor: const Color(0xFF123B45),
+                      foregroundColor: const Color(0xFFD8B982),
+                    ),
                   ),
-                ),
 
-                const Text(
-                  'اختار طاولة وبلّش وزّع المعازيم',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFFD8B982)),
-                ),
+                  const SizedBox(height: 15),
+                  const Text(
+                    'كل واحد إلو مطرح!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'ElMessiri',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 32,
+                      color: Color(0xFFF6F0E7),
+                    ),
+                  ),
 
-                const SizedBox(height: 20),
+                  const Text(
+                    'اختار طاولة وبلّش وزّع المعازيم',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Color(0xFFD8B982)),
+                  ),
 
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    counter('المعازيم', widget.guests),
-                    counter('الطاولات', widget.tables),
-                    counter('الكراسي', widget.seats),
-                  ],
-                ),
+                  const SizedBox(height: 20),
 
-                const SizedBox(height: 20),
+                  Wrap(
+                    alignment: WrapAlignment.center,
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: [
+                      counter('المعازيم', widget.guests),
+                      counter('الطاولات', widget.tables),
+                      counter('الكراسي', widget.seats),
+                    ],
+                  ),
 
-                Expanded(
-                  child: LayoutBuilder(
+                  const SizedBox(height: 20),
+
+                  LayoutBuilder(
                     builder: (context, constraints) {
                       final columns = (constraints.maxWidth / 200)
                           .floor()
@@ -103,10 +260,15 @@ class _SeatingState extends State<Seating> {
                       final cardWidth = (constraints.maxWidth / columns - 12)
                           .clamp(0.0, 200.0)
                           .toDouble();
-
+                      final rowCount = (widget.tables / columns).ceil();
                       return ListView.builder(
-                        itemCount: (widget.tables / columns).ceil(),
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: rowCount + 1,
                         itemBuilder: (context, row) {
+                          if (row == rowCount) {
+                            return guestPanel();
+                          }
                           return Padding(
                             padding: const EdgeInsets.only(bottom: 12),
                             child: Row(
@@ -128,6 +290,7 @@ class _SeatingState extends State<Seating> {
                                       child: TableCard(
                                         number: index + 1,
                                         seats: widget.seats,
+                                        occupied: guestsByTable[index].length,
                                         selected: selectedTable == index + 1,
                                         onTap: () {
                                           setState(() {
@@ -144,22 +307,22 @@ class _SeatingState extends State<Seating> {
                       );
                     },
                   ),
-                ),
 
-                const SizedBox(height: 15),
+                  const SizedBox(height: 15),
 
-                Text(
-                  'اخترت طاولة رقم $selectedTable',
-                  style: const TextStyle(
-                    fontSize: 18,
-                    color: Color(0xFFD8B982),
+                  Text(
+                    'اخترت طاولة رقم $selectedTable',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Color(0xFFD8B982),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      ), // SafeArea
+    ); // Scaffold
   }
 }
