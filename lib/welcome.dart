@@ -1,7 +1,47 @@
 import 'package:flutter/material.dart';
 
-class Welcome extends StatelessWidget {
+class Welcome extends StatefulWidget {
   const Welcome({super.key});
+
+  @override
+  State<Welcome> createState() => _WelcomeState();
+}
+
+class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    );
+
+    controller.forward();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Widget animate(Widget child, double start, double end) {
+    final animation = controller.drive(CurveTween(curve: Interval(start, end)));
+
+    return FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(0, 0.8),
+          end: Offset.zero,
+        ).animate(animation),
+        child: child,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,46 +60,58 @@ class Welcome extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Text(
-                'عرس بلا زعل',
-                textDirection: TextDirection.rtl,
-                style: TextStyle(
-                  fontFamily: 'Rakkas',
-                  fontSize: 60,
-                  color: Color(0xFFF6F0E7),
+              animate(
+                const Text(
+                  'عرس بلا زعل',
+                  textDirection: TextDirection.rtl,
+                  style: TextStyle(
+                    fontFamily: 'Rakkas',
+                    fontSize: 60,
+                    color: Color(0xFFF6F0E7),
+                  ),
                 ),
+                0.0,
+                0.3,
               ),
               const SizedBox(height: 15),
-              const Text(
-                'رتّب معازيمك لتفادي الدراما العائلية',
-                textDirection: TextDirection.rtl,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: 'ElMessiri',
-                  fontWeight: FontWeight.w500,
-                  fontSize: 24,
-                  color: Color(0xFFD8B982),
+              animate(
+                const Text(
+                  'رتّب معازيمك لتفادي الدراما العائلية',
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'ElMessiri',
+                    fontWeight: FontWeight.w500,
+                    fontSize: 24,
+                    color: Color(0xFFD8B982),
+                  ),
                 ),
+                0.35,
+                0.65,
               ),
               const SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFD8B982),
-                  foregroundColor: const Color(0xFF0D202B),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 35,
-                    vertical: 18,
+              animate(
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFD8B982),
+                    foregroundColor: const Color(0xFF0D202B),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 35,
+                      vertical: 18,
+                    ),
+                  ),
+                  child: const Text(
+                    'يلا نرتّب العرس',
+                    style: TextStyle(
+                      fontFamily: 'Alexandria',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
+                    ),
                   ),
                 ),
-                child: const Text(
-                  'يلا نرتّب العرس',
-                  style: TextStyle(
-                    fontFamily: 'Alexandria',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 18,
-                  ),
-                ),
+                0.75,
+                1.0,
               ),
             ],
           ),
