@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'components/rings.dart';
+import 'components/entrance.dart';
+import 'setup.dart';
 
 class Welcome extends StatefulWidget {
   const Welcome({super.key});
@@ -10,6 +12,7 @@ class Welcome extends StatefulWidget {
 
 class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
   late AnimationController controller;
+  bool opening = false;
 
   @override
   void initState() {
@@ -77,7 +80,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
               const SizedBox(height: 15),
               animate(
                 const Text(
-                  'رتّب معازيمك لتفادي الدراما العائلية',
+                  'لأنّ الفرحة بتجمعنا... والطاولات بتفرّقنا!',
                   textDirection: TextDirection.rtl,
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -97,7 +100,31 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
               const SizedBox(height: 20),
               animate(
                 ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    if (opening || !controller.isCompleted) return;
+
+                    opening = true;
+
+                    await Navigator.push(
+                      context,
+                      PageRouteBuilder<void>(
+                        transitionDuration: const Duration(milliseconds: 2500),
+                        reverseTransitionDuration: Duration.zero,
+                        pageBuilder: (context, animation, secondaryAnimation) {
+                          return const Setup();
+                        },
+                        transitionsBuilder:
+                            (context, animation, secondaryAnimation, child) {
+                              return Entrance(
+                                animation: animation,
+                                child: child,
+                              );
+                            },
+                      ),
+                    );
+
+                    opening = false;
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFD8B982),
                     foregroundColor: const Color(0xFF0D202B),
@@ -107,7 +134,7 @@ class _WelcomeState extends State<Welcome> with SingleTickerProviderStateMixin {
                     ),
                   ),
                   child: const Text(
-                    'يلا نرتّب العرس',
+                    'يلا بلا مشاكل',
                     style: TextStyle(
                       fontFamily: 'Alexandria',
                       fontWeight: FontWeight.w600,
