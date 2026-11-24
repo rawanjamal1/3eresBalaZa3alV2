@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'seating.dart';
 
 class Setup extends StatefulWidget {
   const Setup({super.key});
@@ -178,13 +179,13 @@ class _SetupState extends State<Setup> {
                             child: ElevatedButton(
                               onPressed: isValid
                                   ? () {
-                                      ScaffoldMessenger.of(
+                                      Navigator.push(
                                         context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            'بدنا $tables طاولة لـ $guests معزوم',
-                                            textDirection: TextDirection.rtl,
+                                        MaterialPageRoute(
+                                          builder: (context) => Seating(
+                                            guests: guests,
+                                            seats: seats,
+                                            tables: tables,
                                           ),
                                         ),
                                       );
