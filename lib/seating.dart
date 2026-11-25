@@ -51,7 +51,16 @@ class _SeatingState extends State<Seating> {
       showMessage('اكتب اسم المعزوم أول شي!');
       return;
     }
-
+    for (int i = 0; i < guestsByTable.length; i++) {
+      for (final guest in guestsByTable[i]) {
+        if (guest.toLowerCase() == name.toLowerCase()) {
+          showMessage(
+            'هالمعزوم قاعد عالطاولة رقم ${i + 1}، بدّك تقعده مطرحين؟ 😂',
+          );
+          return;
+        }
+      }
+    }
     if (currentGuests.length >= widget.seats) {
       showMessage('الطاولة فلّت! اختار طاولة تانية.');
       return;
@@ -293,9 +302,13 @@ class _SeatingState extends State<Seating> {
                                         occupied: guestsByTable[index].length,
                                         selected: selectedTable == index + 1,
                                         onTap: () {
-                                          setState(() {
-                                            selectedTable = index + 1;
-                                          });
+                                          if (selectedTable != index + 1) {
+                                            guestController.clear();
+
+                                            setState(() {
+                                              selectedTable = index + 1;
+                                            });
+                                          }
                                         },
                                       ),
                                     ),
